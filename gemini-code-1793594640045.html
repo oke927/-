@@ -45,47 +45,60 @@
     }
 
     .score-box {
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       font-weight: bold;
       color: #27ae60;
     }
 
+    /* 🔥 爆烈・主張激しすぎタイマーエリア 🔥 */
     .timer-box {
-      background: #111111;
-      color: #ff3333;
-      padding: 8px 18px;
-      border-radius: 10px;
-      border: 3px solid #ff3333;
-      box-shadow: 0 0 15px rgba(255, 51, 51, 0.6);
+      background: #0d0d0d;
+      padding: 10px 24px;
+      border-radius: 14px;
+      border: 4px solid #ff0055;
+      box-shadow: 0 0 20px rgba(255, 0, 85, 0.8), inset 0 0 10px rgba(255, 0, 85, 0.5);
       display: flex;
       align-items: center;
-      gap: 8px;
-      animation: pulse-glow 1.5s infinite alternate;
+      gap: 12px;
+      animation: super-neon-pulse 1.0s infinite alternate;
+      transform: scale(1.05);
     }
 
     .timer-label {
-      font-size: 0.9rem;
-      color: #ffffff;
-      font-weight: bold;
-      letter-spacing: 1px;
+      font-size: 1.1rem;
+      color: #fff;
+      font-weight: 900;
+      letter-spacing: 2px;
+      background: #ff0055;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-shadow: 0 0 5px #000;
     }
 
     #timer-display {
-      font-size: 2.2rem;
+      font-size: 3.2rem;
       font-weight: 900;
       font-family: 'Impact', 'Arial Black', sans-serif;
-      letter-spacing: 1px;
-      text-shadow: 0 0 10px rgba(255, 51, 51, 0.8);
+      letter-spacing: 2px;
+      color: #ff3300;
+      background: -webkit-linear-gradient(#fff, #ff3300);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 12px rgba(255, 51, 0, 0.9));
+      line-height: 1;
     }
 
-    @keyframes pulse-glow {
+    /* タイマーの超強烈ネオン脈動アニメーション */
+    @keyframes super-neon-pulse {
       0% {
-        box-shadow: 0 0 8px rgba(255, 51, 51, 0.4);
-        border-color: #ff3333;
+        box-shadow: 0 0 15px rgba(255, 0, 85, 0.6), inset 0 0 8px rgba(255, 0, 85, 0.4);
+        border-color: #ff0055;
+        transform: scale(1.03);
       }
       100% {
-        box-shadow: 0 0 22px rgba(255, 51, 51, 0.9);
-        border-color: #ff6666;
+        box-shadow: 0 0 35px rgba(255, 51, 0, 1), inset 0 0 18px rgba(255, 51, 0, 0.8);
+        border-color: #ff5500;
+        transform: scale(1.08);
       }
     }
 
@@ -221,134 +234,24 @@
   <div class="modal-overlay clear-modal" id="clear-modal">
     <div class="modal-content">
       <h2>🎉 GAME CLEAR! 🎉</h2>
-      <p>8箇所の間違いを発見しました！<br>クリアタイム: <strong id="final-time" style="color: #ff3333; font-size: 1.8rem; font-weight: bold;">0.0秒</strong></p>
+      <p>8箇所の間違いを発見しました！<br>クリアタイム: <strong id="final-time" style="color: #ff3300; font-size: 2rem; font-weight: bold; text-shadow: 0 0 10px rgba(255,51,0,0.5);">0.0秒</strong></p>
       <button class="btn-action" style="background-color: #3498db;" onclick="resetGame()">もう一度挑戦する</button>
     </div>
   </div>
 
   <script>
-    // 画像上の間違い箇所10個の定義（％指定：[X%, Y%, 判定半径%]）
     const DIFFERENCES = [
       { id: 1,  x: 55.0, y: 8.5,  radius: 3.5 }, // 1. KidsMenuの「d」の文字
       { id: 2,  x: 59.5, y: 26.5, radius: 3.5 }, // 2. ドリンクバーのオレンジジュース
-      { id: 3,  x: 68.0, y: 28.0, radius: 3.5 }, // 3. ドリア付近の振りかけボトル（左へ修正＆判定をやや拡大）
+      { id: 3,  x: 68.0, y: 28.0, radius: 3.5 }, // 3. ドリア付近の振りかけボトル
       { id: 4,  x: 88.5, y: 29.5, radius: 3.0 }, // 4. 背景のカップサーバー／持ち手
       { id: 5,  x: 96.0, y: 53.0, radius: 4.5 }, // 5. ひつじのキャラクター（消えている）
       { id: 6,  x: 65.5, y: 60.5, radius: 3.5 }, // 6. オリーブオイルのボトルキャップ
       { id: 7,  x: 91.8, y: 62.5, radius: 3.0 }, // 7. 女の子のリボンの色
       { id: 8,  x: 56.5, y: 68.5, radius: 3.5 }, // 8. シュノーケル帽子の男の子の目
-      { id: 9,  x: 57.5, y: 82.5, radius: 4.0 }, // 9. 左下の旗（Make Your Favorite）の欠け（左へ修正＆判定を拡大）
+      { id: 9,  x: 57.5, y: 82.5, radius: 4.0 }, // 9. 左下の旗（Make Your Favorite）の欠け
       { id: 10, x: 82.5, y: 84.5, radius: 4.0 }  // 10. 唐辛子ボトルのラベル／色
     ];
 
     let foundIds = new Set();
     let startTime = null;
-    let timerInterval = null;
-    let isPlaying = false;
-
-    const gameContainer = document.getElementById('game-container');
-    const foundCountEl = document.getElementById('found-count');
-    const timerDisplayEl = document.getElementById('timer-display');
-    const startModal = document.getElementById('start-modal');
-    const clearModal = document.getElementById('clear-modal');
-    const finalTimeEl = document.getElementById('final-time');
-
-    function startGame() {
-      startModal.classList.remove('active');
-      isPlaying = true;
-      startTimer();
-    }
-
-    function startTimer() {
-      startTime = Date.now();
-      timerInterval = setInterval(updateTimer, 100);
-    }
-
-    function updateTimer() {
-      if (!startTime) return;
-      const elapsedMs = Date.now() - startTime;
-      timerDisplayEl.textContent = formatTime(elapsedMs);
-    }
-
-    function formatTime(ms) {
-      const seconds = (ms / 1000).toFixed(1);
-      return `${seconds}秒`;
-    }
-
-    gameContainer.addEventListener('click', (e) => {
-      if (!isPlaying) return;
-
-      const rect = gameContainer.getBoundingClientRect();
-      const clickXPercent = ((e.clientX - rect.left) / rect.width) * 100;
-      const clickYPercent = ((e.clientY - rect.top) / rect.height) * 100;
-
-      for (const diff of DIFFERENCES) {
-        if (foundIds.has(diff.id)) continue;
-
-        const dx = clickXPercent - diff.x;
-        const dy = clickYPercent - diff.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance <= diff.radius) {
-          foundIds.add(diff.id);
-          addMarker(diff.x, diff.y, diff.radius);
-          updateScore();
-          break;
-        }
-      }
-    });
-
-    function addMarker(xPercent, yPercent, radiusPercent) {
-      const marker = document.createElement('div');
-      marker.className = 'marker';
-      
-      const width = gameContainer.clientWidth;
-      const sizePx = (radiusPercent * 2 / 100) * width;
-
-      marker.style.left = `${xPercent}%`;
-      marker.style.top = `${yPercent}%`;
-      marker.style.width = `${Math.max(sizePx, 24)}px`;
-      marker.style.height = `${Math.max(sizePx, 24)}px`;
-
-      gameContainer.appendChild(marker);
-    }
-
-    function updateScore() {
-      const count = foundIds.size;
-      foundCountEl.textContent = count;
-
-      if (count >= 8) {
-        finishGame();
-      }
-    }
-
-    function finishGame() {
-      isPlaying = false;
-      clearInterval(timerInterval);
-      const elapsedMs = Date.now() - startTime;
-      const formattedTime = formatTime(elapsedMs);
-
-      finalTimeEl.textContent = formattedTime;
-      setTimeout(() => {
-        clearModal.classList.add('active');
-      }, 300);
-    }
-
-    function resetGame() {
-      foundIds.clear();
-      isPlaying = false;
-      startTime = null;
-      clearInterval(timerInterval);
-
-      foundCountEl.textContent = '0';
-      timerDisplayEl.textContent = '0.0秒';
-      clearModal.classList.remove('active');
-
-      const markers = document.querySelectorAll('.marker');
-      markers.forEach(m => m.remove());
-
-      startModal.classList.add('active');
-    }
-  </script>
-</body>
-</html>
